@@ -35,20 +35,12 @@ type (
 
 type (
 	Queries struct {
-		GetEventForDay   getEventForDayHandler
-		GetEventOfWeek   getEventsOfWeekHandler
-		GetEventForMonth getEventsForMonthHandler
+		GetEventForDay   getEventForDate
+		GetEventOfWeek   getEventForDate
+		GetEventForMonth getEventForDate
 	}
 
-	getEventForDayHandler interface {
+	getEventForDate interface {
 		Handle(ctx context.Context, day time.Time) []CommonEvent
-	}
-
-	getEventsOfWeekHandler interface {
-		Handle(ctx context.Context, wsd time.Time) []CommonEvent
-	}
-
-	getEventsForMonthHandler interface {
-		Handle(ctx context.Context, msd time.Time) []CommonEvent
 	}
 )
