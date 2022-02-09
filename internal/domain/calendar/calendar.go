@@ -7,6 +7,11 @@ import (
 	"github.com/pkg/errors"
 )
 
+const (
+	LayoutISO     = "2006-01-02 15:04:05"
+	LayoutDateISO = "2006-01-02"
+)
+
 var (
 	ErrEventEmptyId              = errors.New("id field not filled")
 	ErrEventEmptyUserId          = errors.New("userId field not filled")
