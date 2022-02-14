@@ -20,7 +20,6 @@ var (
 	ErrEventNotValidEventDates   = errors.New("the end date and time of the event must be later than the start of the event")
 )
 
-//Event
 type Event struct {
 	id               string
 	title            string
