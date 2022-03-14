@@ -37,7 +37,7 @@ func (h CreateEventHandler) Handle(ctx context.Context, cec app.CreateEventComma
 		return "", err
 	}
 
-	if h.eventRepository.Save(ctx, event); err != nil {
+	if err := h.eventRepository.Save(ctx, event); err != nil {
 		return "", err
 	}
 

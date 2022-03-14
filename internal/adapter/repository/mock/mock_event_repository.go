@@ -15,19 +15,19 @@ type InMemoryEventRepository struct {
 	mu *sync.RWMutex
 }
 
-func NewMockRepository() InMemoryEventRepository {
+func NewMockRepository() *InMemoryEventRepository {
 	db := make(map[string]*calendar.Event)
-	return InMemoryEventRepository{db: db}
+	return &InMemoryEventRepository{db: db, mu: &sync.RWMutex{}}
 }
 
-func (m InMemoryEventRepository) Save(ctx context.Context, event *calendar.Event) error {
+func (m *InMemoryEventRepository) Save(ctx context.Context, event *calendar.Event) error {
 	m.mu.Lock()
 	m.db[event.Id()] = event
 	m.mu.Unlock()
 	return nil
 }
 
-func (m InMemoryEventRepository) Update(ctx context.Context, event *calendar.Event) error {
+func (m *InMemoryEventRepository) Update(ctx context.Context, event *calendar.Event) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	_, ok := m.db[event.Id()]
@@ -38,7 +38,7 @@ func (m InMemoryEventRepository) Update(ctx context.Context, event *calendar.Eve
 	return nil
 }
 
-func (m InMemoryEventRepository) DeleteBy(ctx context.Context, eventId uuid.UUID) error {
+func (m *InMemoryEventRepository) DeleteBy(ctx context.Context, eventId uuid.UUID) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	_, ok := m.db[eventId.String()]
@@ -50,7 +50,7 @@ func (m InMemoryEventRepository) DeleteBy(ctx context.Context, eventId uuid.UUID
 
 }
 
-func (m InMemoryEventRepository) GetEventByDay(ctx context.Context, date time.Time) ([]*calendar.Event, error) {
+func (m *InMemoryEventRepository) GetEventByDay(ctx context.Context, date time.Time) ([]*calendar.Event, error) {
 
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -66,7 +66,7 @@ func (m InMemoryEventRepository) GetEventByDay(ctx context.Context, date time.Ti
 	return events, nil
 }
 
-func (m InMemoryEventRepository) GetEventByWeekStart(ctx context.Context, dateWeek time.Time) ([]*calendar.Event, error) {
+func (m *InMemoryEventRepository) GetEventByWeekStart(ctx context.Context, dateWeek time.Time) ([]*calendar.Event, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	endDate := dateWeek.AddDate(0, 0, 6)
@@ -77,7 +77,7 @@ func (m InMemoryEventRepository) GetEventByWeekStart(ctx context.Context, dateWe
 	return events, nil
 }
 
-func (m InMemoryEventRepository) betweenDate(dateStart time.Time, dateEnd time.Time) ([]*calendar.Event, error) {
+func (m *InMemoryEventRepository) betweenDate(dateStart time.Time, dateEnd time.Time) ([]*calendar.Event, error) {
 	events := make([]*calendar.Event, 0, len(m.db))
 	for _, event := range m.db {
 		if dateInBetween(dateStart, dateEnd, event.TimeAndDateEvent()) {
@@ -90,7 +90,7 @@ func (m InMemoryEventRepository) betweenDate(dateStart time.Time, dateEnd time.T
 	return events, nil
 }
 
-func (m InMemoryEventRepository) GetEventByMonthStart(ctx context.Context, dateMonth time.Time) ([]*calendar.Event, error) {
+func (m *InMemoryEventRepository) GetEventByMonthStart(ctx context.Context, dateMonth time.Time) ([]*calendar.Event, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	endDate := dateMonth.AddDate(0, 1, -1)
@@ -101,7 +101,7 @@ func (m InMemoryEventRepository) GetEventByMonthStart(ctx context.Context, dateM
 	return events, nil
 }
 
-func (m InMemoryEventRepository) FindById(ctx context.Context, eventId uuid.UUID) (*calendar.Event, error) {
+func (m *InMemoryEventRepository) FindById(ctx context.Context, eventId uuid.UUID) (*calendar.Event, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	event, ok := m.db[eventId.String()]
