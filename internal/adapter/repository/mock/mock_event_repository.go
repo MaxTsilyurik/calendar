@@ -1,12 +1,12 @@
 package mock
 
 import (
+	"calendar/internal/app"
 	"calendar/internal/domain/calendar"
 	"context"
 	"sync"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/pkg/errors"
 )
 
@@ -15,7 +15,7 @@ type InMemoryEventRepository struct {
 	mu *sync.RWMutex
 }
 
-func NewMockRepository() *InMemoryEventRepository {
+func NewInMemoryEventRepository() *InMemoryEventRepository {
 	db := make(map[string]*calendar.Event)
 	return &InMemoryEventRepository{db: db, mu: &sync.RWMutex{}}
 }
@@ -32,20 +32,20 @@ func (m *InMemoryEventRepository) Update(ctx context.Context, event *calendar.Ev
 	defer m.mu.Unlock()
 	_, ok := m.db[event.Id()]
 	if !ok {
-		return errors.New("not found event")
+		return app.ErrNotFoundEvent
 	}
 	m.db[event.Id()] = event
 	return nil
 }
 
-func (m *InMemoryEventRepository) DeleteBy(ctx context.Context, eventId uuid.UUID) error {
+func (m *InMemoryEventRepository) DeleteBy(ctx context.Context, eventId string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	_, ok := m.db[eventId.String()]
+	_, ok := m.db[eventId]
 	if !ok {
-		return errors.New("not found event")
+		return app.ErrNotFoundEvent
 	}
-	delete(m.db, eventId.String())
+	delete(m.db, eventId)
 	return nil
 
 }
@@ -101,12 +101,12 @@ func (m *InMemoryEventRepository) GetEventByMonthStart(ctx context.Context, date
 	return events, nil
 }
 
-func (m *InMemoryEventRepository) FindById(ctx context.Context, eventId uuid.UUID) (*calendar.Event, error) {
+func (m *InMemoryEventRepository) FindById(ctx context.Context, eventId string) (*calendar.Event, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	event, ok := m.db[eventId.String()]
+	event, ok := m.db[eventId]
 	if !ok {
-		return nil, errors.Errorf("not found event by id: %s", eventId.String())
+		return nil, errors.Wrapf(app.ErrNotFoundEvent, "find by %s", eventId)
 	}
 	return event, nil
 }
