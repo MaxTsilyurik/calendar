@@ -204,6 +204,7 @@ func TestEventInMockRepository(t *testing.T) {
 					return
 				}
 				require.Equal(t, testCase.CountFindEvent, len(events))
+				countFindInMap := 0
 
 				for _, event := range events {
 					if value, ok := testCase.FindEvent[event.Id()]; ok {
@@ -214,8 +215,10 @@ func TestEventInMockRepository(t *testing.T) {
 						require.Equal(t, value.Title(), event.Title())
 						require.Equal(t, value.Description(), event.Description())
 						require.Equal(t, value.Reminder(), event.Reminder())
+						countFindInMap++
 					}
 				}
+				require.Equal(t, testCase.CountFindEvent, countFindInMap)
 
 			})
 		}
