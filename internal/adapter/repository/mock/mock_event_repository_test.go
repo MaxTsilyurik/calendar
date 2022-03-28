@@ -48,7 +48,7 @@ func TestEventInMockRepository(t *testing.T) {
 				Name:  "not should find event by id",
 				Id:    uuid.NewString(),
 				Event: nil,
-				Err:   app.ErrNotFoundEvent,
+				Err:   app.ErrEventNotFound,
 			},
 		}
 
@@ -78,8 +78,66 @@ func TestEventInMockRepository(t *testing.T) {
 	})
 
 	t.Run("update event", func(t *testing.T) {
+
+		eventId := uuid.NewString()
+		userIdOld := uuid.NewString()
+		userIdNew := uuid.NewString()
+
+		eventUpdate, _ := calendar.NewEvent(eventId, userIdOld, "new string", "new string",
+			time.Now(), time.Now(), calendar.TimeOfEvent)
+
+		eventUpdateCaseOne, _ := calendar.NewEvent(eventId, userIdNew, "new string update", "new string update",
+			time.Now(), time.Now(), calendar.TimeOfEvent)
+
+		eventUpdateCaseTwo, _ := calendar.NewEvent(uuid.NewString(), userIdNew, "new string update", "new string update",
+			time.Now(), time.Now(), calendar.TimeOfEvent)
+
 		testCases := []struct {
-			Name string
-		}{}
+			Name        string
+			Event       *calendar.Event
+			EventUpdate *calendar.Event
+			Err         error
+		}{
+			{
+				Name:        "update should",
+				Event:       eventUpdate,
+				EventUpdate: eventUpdateCaseOne,
+				Err:         nil,
+			},
+			{
+				Name:        "not found event",
+				Event:       nil,
+				EventUpdate: eventUpdateCaseTwo,
+				Err:         app.ErrEventNotFound,
+			},
+		}
+
+		for i := range testCases {
+			testCase := testCases[i]
+			t.Run(testCase.Name, func(t *testing.T) {
+				t.Parallel()
+				if testCase.Event != nil {
+					_ = repository.Save(context.TODO(), testCase.Event)
+				}
+
+				err := repository.Update(context.TODO(), testCase.EventUpdate)
+				if err != nil {
+					require.Error(t, err)
+					require.True(t, errors.Is(err, testCase.Err))
+					return
+				}
+
+				event, _ := repository.FindById(context.TODO(), testCase.Event.Id())
+
+				require.Equal(t, testCase.EventUpdate.Id(), event.Id())
+				require.Equal(t, testCase.EventUpdate.CreatedUser(), event.CreatedUser())
+				require.Equal(t, testCase.EventUpdate.EventDuration(), event.EventDuration())
+				require.Equal(t, testCase.EventUpdate.TimeAndDateEvent(), event.TimeAndDateEvent())
+				require.Equal(t, testCase.EventUpdate.Title(), event.Title())
+				require.Equal(t, testCase.EventUpdate.Description(), event.Description())
+				require.Equal(t, testCase.EventUpdate.Reminder(), event.Reminder())
+
+			})
+		}
 	})
 }
