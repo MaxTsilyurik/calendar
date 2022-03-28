@@ -32,7 +32,7 @@ func (m *InMemoryEventRepository) Update(ctx context.Context, event *calendar.Ev
 	defer m.mu.Unlock()
 	_, ok := m.db[event.Id()]
 	if !ok {
-		return app.ErrNotFoundEvent
+		return errors.Wrapf(app.ErrEventNotFound, "update event by id: %s", event.Id())
 	}
 	m.db[event.Id()] = event
 	return nil
@@ -43,7 +43,7 @@ func (m *InMemoryEventRepository) DeleteBy(ctx context.Context, eventId string) 
 	defer m.mu.Unlock()
 	_, ok := m.db[eventId]
 	if !ok {
-		return app.ErrNotFoundEvent
+		return errors.Wrapf(app.ErrEventNotFound, "removing event by id: %s", eventId)
 	}
 	delete(m.db, eventId)
 	return nil
@@ -61,7 +61,7 @@ func (m *InMemoryEventRepository) GetEventByDay(ctx context.Context, date time.T
 		}
 	}
 	if len(events) == 0 {
-		return nil, errors.Errorf("Event not found by date: %s", date.Format(calendar.LayoutDateISO))
+		return nil, errors.Wrapf(app.ErrEventNotFound, "getting event by date: %s", date.Format(calendar.LayoutDateISO))
 	}
 	return events, nil
 }
@@ -72,7 +72,10 @@ func (m *InMemoryEventRepository) GetEventByWeekStart(ctx context.Context, dateW
 	endDate := dateWeek.AddDate(0, 0, 6)
 	events, err := m.betweenDate(dateWeek, endDate)
 	if err != nil {
-		return nil, errors.Wrap(err, "Find event by week start")
+		return nil, errors.Wrapf(err,
+			"getting an event from the start of the week between a date :%s  %s",
+			dateWeek.Format(calendar.LayoutDateISO), endDate.Format(calendar.LayoutDateISO),
+		)
 	}
 	return events, nil
 }
@@ -85,7 +88,7 @@ func (m *InMemoryEventRepository) betweenDate(dateStart time.Time, dateEnd time.
 		}
 	}
 	if len(events) == 0 {
-		return nil, errors.Errorf("Event not found by date between: %s %s", dateStart.Format(calendar.LayoutDateISO), dateEnd.Format(calendar.LayoutDateISO))
+		return nil, app.ErrEventNotFound
 	}
 	return events, nil
 }
@@ -96,7 +99,10 @@ func (m *InMemoryEventRepository) GetEventByMonthStart(ctx context.Context, date
 	endDate := dateMonth.AddDate(0, 1, -1)
 	events, err := m.betweenDate(dateMonth, endDate)
 	if err != nil {
-		return nil, errors.Wrap(err, "Find event by week start")
+		return nil, errors.Wrapf(err,
+			"getting an event from the start of the month between a date :%s  %s",
+			dateMonth.Format(calendar.LayoutDateISO), endDate.Format(calendar.LayoutDateISO),
+		)
 	}
 	return events, nil
 }
@@ -106,7 +112,7 @@ func (m *InMemoryEventRepository) FindById(ctx context.Context, eventId string) 
 	defer m.mu.RUnlock()
 	event, ok := m.db[eventId]
 	if !ok {
-		return nil, errors.Wrapf(app.ErrNotFoundEvent, "find by %s", eventId)
+		return nil, errors.Wrapf(app.ErrEventNotFound, "getting event by %s", eventId)
 	}
 	return event, nil
 }
