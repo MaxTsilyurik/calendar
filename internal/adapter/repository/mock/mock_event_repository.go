@@ -124,8 +124,6 @@ func compareDate(dateOne, dateTwo time.Time) bool {
 }
 
 func dateInBetween(dateStart, dateEnd, compareDate time.Time) bool {
-	y1, m1, d1 := dateStart.Date()
-	y2, m2, d2 := dateEnd.Date()
-	y3, m3, d3 := compareDate.Date()
-	return (y1 <= y3 && y2 >= y3) && (m1 <= m3 && m2 >= m3) && (d1 <= d3 && d2 >= d2)
+	return dateStart == compareDate || dateEnd == compareDate ||
+		(dateStart.Before(compareDate) && dateEnd.After(compareDate))
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 	"testing"
-	"time"
+	time "time"
 )
 
 func TestEventInMockRepository(t *testing.T) {
@@ -197,6 +197,98 @@ func TestEventInMockRepository(t *testing.T) {
 			t.Run(testCase.Name, func(t *testing.T) {
 				t.Parallel()
 				events, err := repository.GetEventByDay(context.TODO(), testCase.DateSearch)
+
+				if err != nil {
+					require.Error(t, err)
+					require.True(t, errors.Is(err, testCase.Err))
+					return
+				}
+				require.Equal(t, testCase.CountFindEvent, len(events))
+				countFindInMap := 0
+
+				for _, event := range events {
+					if value, ok := testCase.FindEvent[event.Id()]; ok {
+						require.Equal(t, value.Id(), event.Id())
+						require.Equal(t, value.CreatedUser(), event.CreatedUser())
+						require.Equal(t, value.EventDuration(), event.EventDuration())
+						require.Equal(t, value.TimeAndDateEvent(), event.TimeAndDateEvent())
+						require.Equal(t, value.Title(), event.Title())
+						require.Equal(t, value.Description(), event.Description())
+						require.Equal(t, value.Reminder(), event.Reminder())
+						countFindInMap++
+					}
+				}
+				require.Equal(t, testCase.CountFindEvent, countFindInMap)
+
+			})
+		}
+	})
+
+	//Тест проверяет работу метода поиска событий в диапазоне дат.
+	//То есть основанная суть это проверить работоспособность метода вхождения даты события в интервале 2 дат,
+	//который используется в методах поиска событий с даты начала недели или месяца.
+	//В данном тесте используется метод репозитория для поиска событий с даты начала недели.
+	t.Run("getting event by date between", func(t *testing.T) {
+		t.Parallel()
+		date := time.Date(2022, time.March, 28, 0, 0, 0, 0, time.UTC)
+		dateEnd := date.Add(5 * time.Minute)
+
+		eventOne, _ := calendar.NewEvent(uuid.NewString(), uuid.NewString(), "new string", "new string",
+			date.AddDate(0, 0, 2), dateEnd.AddDate(0, 0, 2), calendar.TimeOfEvent)
+
+		eventTwo, _ := calendar.NewEvent(uuid.NewString(), uuid.NewString(), "new string update", "new string update",
+			date, dateEnd, calendar.TimeOfEvent)
+
+		eventThree, _ := calendar.NewEvent(uuid.NewString(), uuid.NewString(), "new string update", "new string update",
+			date.AddDate(0, 0, 6), dateEnd.AddDate(0, 0, 6), calendar.TimeOfEvent)
+
+		eventFour, _ := calendar.NewEvent(uuid.NewString(), uuid.NewString(), "new string update", "new string update",
+			date.AddDate(0, 1, 2), dateEnd.AddDate(0, 1, 2), calendar.TimeOfEvent)
+
+		eventFive, _ := calendar.NewEvent(uuid.NewString(), uuid.NewString(), "new string update", "new string update",
+			date.Add(5*time.Hour), dateEnd.Add(6*time.Hour), calendar.TimeOfEvent)
+
+		listSave := []*calendar.Event{eventOne, eventTwo, eventThree, eventFour, eventFive}
+
+		findEvent := map[string]*calendar.Event{
+			eventOne.Id():   eventOne,
+			eventTwo.Id():   eventTwo,
+			eventThree.Id(): eventThree,
+			eventFive.Id():  eventFive,
+		}
+
+		testCases := []struct {
+			Name           string
+			DateSearch     time.Time
+			CountFindEvent int
+			FindEvent      map[string]*calendar.Event
+			Err            error
+		}{
+			{
+				Name:           "not found",
+				DateSearch:     date.AddDate(0, 0, 10),
+				CountFindEvent: 0,
+				FindEvent:      nil,
+				Err:            app.ErrEventNotFound,
+			},
+			{
+				Name:           "should find events by date",
+				DateSearch:     date,
+				CountFindEvent: 4,
+				FindEvent:      findEvent,
+				Err:            nil,
+			},
+		}
+
+		for _, event := range listSave {
+			_ = repository.Save(context.TODO(), event)
+		}
+
+		for i := range testCases {
+			testCase := testCases[i]
+			t.Run(testCase.Name, func(t *testing.T) {
+				t.Parallel()
+				events, err := repository.GetEventByWeekStart(context.TODO(), testCase.DateSearch)
 
 				if err != nil {
 					require.Error(t, err)
