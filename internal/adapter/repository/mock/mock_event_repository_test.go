@@ -13,9 +13,10 @@ import (
 
 func TestEventInMockRepository(t *testing.T) {
 	t.Parallel()
-	repository := NewInMemoryEventRepository()
 
 	t.Run("save new event", func(t *testing.T) {
+		repository := NewInMemoryEventRepository()
+
 		t.Parallel()
 		event, _ := calendar.NewEvent(uuid.NewString(), uuid.NewString(), "new string", "new string",
 			time.Now(), time.Now(), calendar.TimeOfEvent)
@@ -24,6 +25,8 @@ func TestEventInMockRepository(t *testing.T) {
 	})
 
 	t.Run("find event", func(t *testing.T) {
+		repository := NewInMemoryEventRepository()
+
 		t.Parallel()
 		eventId := uuid.NewString()
 
@@ -78,6 +81,7 @@ func TestEventInMockRepository(t *testing.T) {
 	})
 
 	t.Run("update event", func(t *testing.T) {
+		repository := NewInMemoryEventRepository()
 
 		eventId := uuid.NewString()
 		userIdOld := uuid.NewString()
@@ -142,6 +146,8 @@ func TestEventInMockRepository(t *testing.T) {
 	})
 
 	t.Run("getting event by day", func(t *testing.T) {
+		repository := NewInMemoryEventRepository()
+
 		t.Parallel()
 		date := time.Date(2022, time.March, 22, 15, 00, 46, 0, time.UTC)
 		dateEnd := date.Add(5 * time.Minute)
@@ -229,6 +235,8 @@ func TestEventInMockRepository(t *testing.T) {
 	//который используется в методах поиска событий с даты начала недели или месяца.
 	//В данном тесте используется метод репозитория для поиска событий с даты начала недели.
 	t.Run("getting event by date between", func(t *testing.T) {
+		repository := NewInMemoryEventRepository()
+
 		t.Parallel()
 		date := time.Date(2022, time.March, 28, 0, 0, 0, 0, time.UTC)
 		dateEnd := date.Add(5 * time.Minute)
