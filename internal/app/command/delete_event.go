@@ -12,12 +12,12 @@ type DeleteEventHandler struct {
 	repository repository.EventRepository
 }
 
-func NewDeleteEventHandler(repository repository.EventRepository) (DeleteEventHandler, error) {
+func NewDeleteEventHandler(repository repository.EventRepository) DeleteEventHandler {
 	if repository == nil {
 		panic("event repository is nil")
 	}
 
-	return DeleteEventHandler{repository: repository}, nil
+	return DeleteEventHandler{repository: repository}
 }
 
 func (h DeleteEventHandler) Handle(ctx context.Context, eventId uuid.UUID) (err error) {
