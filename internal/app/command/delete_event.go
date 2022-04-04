@@ -25,6 +25,6 @@ func (h DeleteEventHandler) Handle(ctx context.Context, eventId uuid.UUID) (err 
 		err = errors.Wrapf(err, "delete event by id: %s", eventId.String())
 	}()
 
-	err = h.repository.DeleteBy(ctx, eventId)
+	err = h.repository.DeleteBy(ctx, eventId.String())
 	return
 }

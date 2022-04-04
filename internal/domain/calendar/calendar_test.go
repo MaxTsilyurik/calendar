@@ -147,7 +147,7 @@ func TestNewEvent(t *testing.T) {
 				userId:           uuid.NewString(),
 				reminder:         InFiveMinutes,
 			},
-			ExpectedErr: ErrEventNotValidEventDates,
+			ExpectedErr: nil,
 		},
 		{
 

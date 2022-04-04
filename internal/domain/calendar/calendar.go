@@ -48,7 +48,7 @@ func NewEvent(id, userId, title, description string, timeAndDateEvent, eventDura
 		return nil, ErrEventNotValidReminderType
 	}
 
-	if eventDuration.Equal(timeAndDateEvent) || eventDuration.Before(timeAndDateEvent) {
+	if eventDuration.Before(timeAndDateEvent) {
 		return nil, ErrEventNotValidEventDates
 	}
 
