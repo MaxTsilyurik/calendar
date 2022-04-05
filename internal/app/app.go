@@ -41,6 +41,6 @@ type (
 	}
 
 	getEventForDate interface {
-		Handle(ctx context.Context, day time.Time) []CommonEvent
+		Handle(ctx context.Context, day time.Time) ([]*CommonEvent, error)
 	}
 )
