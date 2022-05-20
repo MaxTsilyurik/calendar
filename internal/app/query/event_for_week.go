@@ -20,7 +20,7 @@ func NewEventForWeekHandler(eventRepository repository.EventRepository) EventFor
 	}
 }
 
-func (h EventForWeekHandler) Handler(ctx context.Context, day time.Time) ([]*app.CommonEvent, error) {
+func (h EventForWeekHandler) Handle(ctx context.Context, day time.Time) ([]*app.CommonEvent, error) {
 	eventByDay, err := h.repository.GetEventByWeekStart(ctx, day)
 	if err != nil {
 		return []*app.CommonEvent{}, err

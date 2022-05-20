@@ -20,7 +20,7 @@ func NewEventForDayHandler(eventRepository repository.EventRepository) EventForD
 	}
 }
 
-func (h EventForDayHandler) Handler(ctx context.Context, day time.Time) ([]*app.CommonEvent, error) {
+func (h EventForDayHandler) Handle(ctx context.Context, day time.Time) ([]*app.CommonEvent, error) {
 	eventByDay, err := h.repository.GetEventByDay(ctx, day)
 	if err != nil {
 		return []*app.CommonEvent{}, err
