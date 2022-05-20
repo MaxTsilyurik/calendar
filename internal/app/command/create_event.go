@@ -18,7 +18,6 @@ func NewCreateEventHandler(repository repository.EventRepository) CreateEventHan
 	if repository == nil {
 		panic("event repository is nil")
 	}
-
 	return CreateEventHandler{eventRepository: repository}
 }
 
@@ -27,7 +26,6 @@ func (h CreateEventHandler) Handle(ctx context.Context, cec app.CreateEventComma
 	defer func() {
 		err = errors.Wrapf(err, "event creation by user: %s", cec.UserId.String())
 	}()
-
 	eventID = uuid.NewString()
 
 	event, err := calendar.NewEvent(eventID, cec.UserId.String(),
@@ -37,7 +35,7 @@ func (h CreateEventHandler) Handle(ctx context.Context, cec app.CreateEventComma
 		return "", err
 	}
 
-	if err := h.eventRepository.Save(ctx, event); err != nil {
+	if err = h.eventRepository.Save(ctx, event); err != nil {
 		return "", err
 	}
 
