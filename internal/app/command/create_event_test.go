@@ -5,11 +5,12 @@ import (
 	"calendar/internal/app"
 	"calendar/internal/domain/calendar"
 	"context"
+	"testing"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
-	"testing"
-	"time"
 )
 
 func TestCreateEvent(t *testing.T) {
@@ -20,14 +21,7 @@ func TestCreateEvent(t *testing.T) {
 	}{
 		{
 			Name: "create event",
-			Command: struct {
-				Title            string
-				TimeAndDateEvent time.Time
-				EventDuration    time.Time
-				Description      string
-				UserId           uuid.UUID
-				Reminder         calendar.ReminderType
-			}{
+			Command: app.CreateEventCommand{
 				UserId:           uuid.New(),
 				Title:            "new title",
 				TimeAndDateEvent: time.Date(2022, time.April, 5, 12, 0, 0, 0, time.UTC),
@@ -39,14 +33,7 @@ func TestCreateEvent(t *testing.T) {
 		},
 		{
 			Name: "dont create event when title not filled",
-			Command: struct {
-				Title            string
-				TimeAndDateEvent time.Time
-				EventDuration    time.Time
-				Description      string
-				UserId           uuid.UUID
-				Reminder         calendar.ReminderType
-			}{
+			Command: app.CreateEventCommand{
 				UserId:           uuid.New(),
 				TimeAndDateEvent: time.Date(2022, time.April, 5, 12, 0, 0, 0, time.UTC),
 				EventDuration:    time.Date(2022, time.April, 5, 12, 5, 0, 0, time.UTC),
@@ -57,14 +44,7 @@ func TestCreateEvent(t *testing.T) {
 		},
 		{
 			Name: "dont create event when reminder not valid",
-			Command: struct {
-				Title            string
-				TimeAndDateEvent time.Time
-				EventDuration    time.Time
-				Description      string
-				UserId           uuid.UUID
-				Reminder         calendar.ReminderType
-			}{
+			Command: app.CreateEventCommand{
 				UserId:           uuid.New(),
 				Title:            "new title",
 				TimeAndDateEvent: time.Date(2022, time.April, 5, 12, 0, 0, 0, time.UTC),
@@ -76,14 +56,7 @@ func TestCreateEvent(t *testing.T) {
 		},
 		{
 			Name: "don't create event when end date and time before event date and time",
-			Command: struct {
-				Title            string
-				TimeAndDateEvent time.Time
-				EventDuration    time.Time
-				Description      string
-				UserId           uuid.UUID
-				Reminder         calendar.ReminderType
-			}{
+			Command: app.CreateEventCommand{
 				UserId:           uuid.New(),
 				Title:            "new title",
 				TimeAndDateEvent: time.Date(2022, time.April, 5, 12, 0, 0, 0, time.UTC),
