@@ -47,9 +47,9 @@ func parseConfig(path string) error {
 }
 
 func setDefaults() {
-	viper.SetDefault("http.port", defaultHTTPPort)
-	viper.SetDefault("http.readTimeout", defaultHTTPRWTimeout)
-	viper.SetDefault("http.writeTimeout", defaultHTTPRWTimeout)
+	viper.SetDefault("interface.port", defaultHTTPPort)
+	viper.SetDefault("interface.readTimeout", defaultHTTPRWTimeout)
+	viper.SetDefault("interface.writeTimeout", defaultHTTPRWTimeout)
 }
 
 func unmarshal(cfg *Config) error {

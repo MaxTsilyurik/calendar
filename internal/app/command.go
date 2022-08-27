@@ -9,12 +9,12 @@ import (
 
 type (
 	CreateEventCommand struct {
-		Title            string
-		TimeAndDateEvent time.Time
-		EventDuration    time.Time
-		Description      string
-		UserId           uuid.UUID
-		Reminder         calendar.ReminderType
+		Title            string                `json:"title,omitempty"`
+		TimeAndDateEvent time.Time             `json:"time_and_date_event"`
+		EventDuration    time.Time             `json:"event_duration"`
+		Description      string                `json:"description,omitempty"`
+		UserId           uuid.UUID             `json:"user_id,omitempty"`
+		Reminder         calendar.ReminderType `json:"reminder,omitempty"`
 	}
 
 	EditEventCommand struct {
